@@ -1,0 +1,1 @@
+### This Directory will hold any code that is slapped together, for practice purposes, or anything that isn't going to be a Working Demo or part of the Final Code base. Basicly just a sandbox of code to play with.
