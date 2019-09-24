@@ -2,6 +2,10 @@ import os
 import tkinter as tk
 from functools import partial
 
+BB_BLUE = "#17286d"
+BB_GOLD = "#f2d652"
+APPLICATION_TITLE = "Door Sensor"
+
 
 class Root(tk.Tk):
     """
@@ -15,18 +19,23 @@ class Root(tk.Tk):
     }
 
     def __init__(self, *args, **kwargs):
-        # Configure the root application
-        title = kwargs.pop("title")
+        # Set up pre-creation variables
+        title = kwargs.pop("title", APPLICATION_TITLE)
         self.width = kwargs.pop("width")
         self.height = kwargs.pop("height")
         self.current_player = 1
         self.clicked = set()
         geometry = f"{self.width}x{self.height}"
+
+        # Initialize the class
         tk.Tk.__init__(self, *args, **kwargs)
+
+        # Set up post-creation variables and class attributes
         self.geometry(geometry)
+        self.configure(background=BB_BLUE)
         self.title(title)
-        self.tk.call("wm", "iconphoto", self._w,
-                     tk.PhotoImage(file=os.path.join("images", "boise-brewing-medium-logo.png")))
+        self.logo = tk.PhotoImage(file=os.path.join("images", "boise-brewing-medium-logo.png"))
+        self.tk.call("wm", "iconphoto", self._w, self.logo)
         self.counter = tk.IntVar()
         self.player_mark = tk.StringVar()
 
@@ -68,27 +77,36 @@ def run():
     height = 480
 
     # Sets up the root window
-    root = Root(title="Tic Tac Toe", width=width, height=height)
+    root = Root(width=width, height=height)
 
     # This is to allow us to size the buttons on pixels
-    pixel = tk.PhotoImage(width=1, height=1)
+    # pixel = tk.PhotoImage(width=1, height=1)
+    #
+    # # Add the buttons to the display
+    # nw_button = tk.Button(root, text="Increase", command=partial(inc_button_click, root.counter), padx=0, pady=0,
+    #                       image=pixel, compound="c", width=(width // 4), height=(height // 4))
+    # nw_button.grid(column=0, row=0)
+    # sw_button = tk.Button(root, text="Decrease", command=partial(dec_button_click, root.counter), padx=0, pady=0,
+    #                       image=pixel, compound="c", width=(width // 4), height=(height // 4))
+    # sw_button.grid(column=0, row=2)
+    # se_button = tk.Button(root, text="Decrease", command=partial(dec_button_click, root.counter), padx=0, pady=0,
+    #                       image=pixel, compound="c", width=(width // 4), height=(height // 4))
+    # se_button.grid(column=2, row=2)
+    # ne_button = tk.Button(root, textvariable=root.player_mark, command=partial(root.mark_and_update, "tr"), padx=0,
+    #                       pady=0, image=pixel, compound="c", width=(width // 4), height=(height // 4),
+    #                       foreground=BB_GOLD, background=BB_BLUE)
+    # ne_button.grid(column=2, row=0)
 
-    # Add the buttons to the display
-    nw_button = tk.Button(root, text="Increase", command=partial(inc_button_click, root.counter), padx=0, pady=0,
-                          image=pixel, compound="c", width=(width // 4), height=(height // 4))
-    nw_button.grid(column=0, row=0)
-    sw_button = tk.Button(root, text="Decrease", command=partial(dec_button_click, root.counter), padx=0, pady=0,
-                          image=pixel, compound="c", width=(width // 4), height=(height // 4))
-    sw_button.grid(column=0, row=2)
-    se_button = tk.Button(root, text="Decrease", command=partial(dec_button_click, root.counter), padx=0, pady=0,
-                          image=pixel, compound="c", width=(width // 4), height=(height // 4))
-    se_button.grid(column=2, row=2)
-    ne_button = tk.Button(root, textvariable=root.player_mark, command=partial(root.mark_and_update, "tr"), padx=0,
-                          pady=0, image=pixel, compound="c", width=(width // 4), height=(height // 4))
-    ne_button.grid(column=2, row=0)
+    # Add BB logo to top left of GUI
+    image = tk.PhotoImage(file=os.path.join("images", "boise-brewing-small-logo.png"))
+    logo_canvas = tk.Canvas(root)
+    logo_canvas.configure(bg=BB_BLUE, width=175, height=58, bd=0, highlightthickness=0)
+    logo_canvas.grid(column=0, row=0, sticky="NW")
+    # 90, 30
+    logo_canvas.create_image(87, 30, anchor="center", image=image)
 
-    label = tk.Label(root, textvariable=root.counter)
-    label.grid(column=1, row=1)
+    # label = tk.Label(root, textvariable=root.counter)
+    # label.grid(column=1, row=1)
 
     # This runs the gui so things actually show up
     root.mainloop()
