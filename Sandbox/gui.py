@@ -28,16 +28,31 @@ class Root(tk.Tk):
         tk.Tk.__init__(self, *args, **kwargs)
 
         # Set up post-creation variables and class attributes
-        self.configure_vars(title)
+        self.counter = tk.IntVar()
+        self.player_mark = tk.StringVar()
+        self.message = tk.StringVar()
+        self.geometry("800x480")
+        self.configure(background=BB_BLUE)
+        self.title(title)
+
+        # Instance variables to be set up by configuration methods
+        self.message_label = None
+        self.logo_canvas = None
+        self.pixel = None
+        self.logo_small = None
+        self.logo_medium = None
 
         # Add BB logo to top left of GUI and as UI icon
         self.create_logos_and_icons()
 
+        # Create a 3 x 3 grid in the root window
+        self.create_grid()
+
         # Set up labels
         self.create_labels()
 
-        # Create a 3 x 3 grid in the root window
-        self.create_grid()
+        # Set up buttons
+        self.create_buttons()
 
     def create_logos_and_icons(self):
         # Open and store the images as attributes
@@ -54,9 +69,29 @@ class Root(tk.Tk):
         self.logo_canvas.create_image(87, 30, anchor="center", image=self.logo_small)
 
     def create_buttons(self):
-        nw_button = tk.Button(self, text="Update", command=partial(self.display_message, "Updated!"), padx=0, pady=0,
-                              image=self.pixel, compound="c", width=60, height=20)
-        nw_button.grid(column=0, row=1, sticky="W")
+        inc_by_one = tk.Button(self, text="Increment (+1)", padx=0, pady=0, image=self.pixel, compound="c", width=100,
+                               height=100, bd=0, highlightthickness=0,
+                               command=partial(self.display_message, "Trigger value increased."))
+        inc_by_one.configure(foreground="green")
+        inc_by_one.grid(column=0, row=1, sticky="W")
+        
+        dec_by_one = tk.Button(self, text="Deccrement (-1)", padx=0, pady=0, image=self.pixel, compound="c", width=100,
+                               height=100, bd=0, highlightthickness=0,
+                               command=partial(self.display_message, "Trigger value decreased."))
+        dec_by_one.configure(foreground="red")
+        dec_by_one.grid(column=0, row=2, sticky="W")
+
+        inc_by_ten = tk.Button(self, text="Increment (+10)", padx=0, pady=0, image=self.pixel, compound="c", width=100,
+                               height=100, bd=0, highlightthickness=0,
+                               command=partial(self.display_message, "Trigger value increased."))
+        inc_by_ten.configure(foreground="green")
+        inc_by_ten.grid(column=1, row=1, sticky="W")
+
+        dec_by_ten = tk.Button(self, text="Decrement (-10)", padx=0, pady=0, image=self.pixel, compound="c", width=100,
+                               height=100, bd=0, highlightthickness=0,
+                               command=partial(self.display_message, "Trigger value decreased."))
+        dec_by_ten.configure(foreground="red")
+        dec_by_ten.grid(column=1, row=2, sticky="W")
 
     def create_labels(self):
         self.message_label = tk.Label(self, textvariable=self.message)
@@ -69,14 +104,6 @@ class Root(tk.Tk):
             self.rowconfigure(rows, weight=1)
             self.columnconfigure(rows, weight=1)
             rows += 1
-
-    def configure_vars(self, title):
-        self.counter = tk.IntVar()
-        self.player_mark = tk.StringVar()
-        self.message = tk.StringVar()
-        self.geometry("800x480")
-        self.configure(background=BB_BLUE)
-        self.title(title)
 
     def mark_and_update(self, button_id):
         if button_id not in self.clicked:
@@ -104,38 +131,16 @@ def dec_button_click(counter):
 
 def run():
     """
-       This is the driver function of the GUI. This sets up the Root container instance and assigns
-       buttons to it. The very last line is the method call that actually runs the GUI
+       This is the driver function of the GUI. This sets up the Root container instance.
+       The second to last line is the method call that actually runs the GUI
 
     """
 
     # Sets up the root window
     root = Root()
 
-
-
-
-    # Add the buttons to the display
-
-    # sw_button = tk.Button(root, text="Decrease", command=partial(dec_button_click, root.counter), padx=0, pady=0,
-    #                       image=pixel, compound="c", width=(width // 4), height=(height // 4))
-    # sw_button.grid(column=0, row=2)
-    # se_button = tk.Button(root, text="Decrease", command=partial(dec_button_click, root.counter), padx=0, pady=0,
-    #                       image=pixel, compound="c", width=(width // 4), height=(height // 4))
-    # se_button.grid(column=2, row=2)
-    # ne_button = tk.Button(root, textvariable=root.player_mark, command=partial(root.mark_and_update, "tr"), padx=0,
-    #                       pady=0, image=pixel, compound="c", width=(width // 4), height=(height // 4),
-    #                       foreground=BB_GOLD, background=BB_BLUE)
-    # ne_button.grid(column=2, row=0)
-
-
-
-    # label = tk.Label(root, textvariable=root.counter)
-    # label.grid(column=1, row=1)
-
     # This runs the gui so things actually show up
     root.mainloop()
-
 
 if __name__ == "__main__":
     run()
