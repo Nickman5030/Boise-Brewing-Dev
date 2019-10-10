@@ -16,6 +16,11 @@ GPIO.setup(GPIO_PIR, GPIO.IN)  # PIR
 
 
 def distance():
+    """
+    Uses the ultrasonic sensor to measure the distance from the sensor
+    to whatever it is pointing at.
+    :return:
+    """
     # set Trigger to HIGH
     GPIO.output(GPIO_TRIGGER, True)
 
@@ -23,27 +28,32 @@ def distance():
     time.sleep(0.00001)
     GPIO.output(GPIO_TRIGGER, False)
 
-    StartTime = time.time()
-    StopTime = time.time()
+    start_time = time.time()
+    stop_time = time.time()
 
     # save StartTime
     while GPIO.input(GPIO_ECHO) == 0:
-        StartTime = time.time()
+        start_time = time.time()
 
     # save time of arrival
     while GPIO.input(GPIO_ECHO) == 1:
-        StopTime = time.time()
+        stop_time = time.time()
 
     # time difference between start and arrival
-    TimeElapsed = StopTime - StartTime
+    time_elapsed = stop_time - start_time
     # multiply with the sonic speed (34300 cm/s)
     # and divide by 2, because there and back
-    distance = (TimeElapsed * 34300) / 2
+    distance = (time_elapsed * 34300) / 2
 
     return distance
 
 
 def run_sensors():
+    """
+    Runs PIR and ultrasonic sensors. The ultrasonic sensor reads after the
+    the PIR sensor has triggered.
+    :return:
+    """
     try:
         time.sleep(2)  # to stabilize sensor
         count = 0
