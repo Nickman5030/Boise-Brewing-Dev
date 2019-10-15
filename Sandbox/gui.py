@@ -31,12 +31,17 @@ class Root(tk.Tk):
         self.counter = tk.IntVar()
         self.player_mark = tk.StringVar()
         self.message = tk.StringVar()
+        self.relay_state = tk.StringVar()
+        self.relay_button_text = tk.StringVar()
         self.geometry("800x480")
         self.configure(background=BB_BLUE)
         self.title(title)
 
         # Instance variables to be set up by configuration methods
         self.message_label = None
+        self.goal_increase_label = None
+        self.goal_decrease_label = None
+        self.relay_label = None
         self.logo_canvas = None
         self.pixel = None
         self.logo_small = None
@@ -44,9 +49,6 @@ class Root(tk.Tk):
 
         # Add BB logo to top left of GUI and as UI icon
         self.create_logos_and_icons()
-
-        # Create a 3 x 3 grid in the root window
-        self.create_grid()
 
         # Set up labels
         self.create_labels()
@@ -69,41 +71,64 @@ class Root(tk.Tk):
         self.logo_canvas.create_image(87, 30, anchor="center", image=self.logo_small)
 
     def create_buttons(self):
-        inc_by_one = tk.Button(self, text="Increment (+1)", padx=0, pady=0, image=self.pixel, compound="c", width=100,
-                               height=100, bd=0, highlightthickness=0,
+        # Manage goal increments/decrements
+        inc_by_one = tk.Button(self, text="+1", width=8, height=4, bg="gray", fg="green", padx=10, pady=10,
                                command=partial(self.display_message, "Trigger value increased."))
-        inc_by_one.configure(foreground="green")
-        inc_by_one.grid(column=0, row=1, sticky="W")
-        
-        dec_by_one = tk.Button(self, text="Deccrement (-1)", padx=0, pady=0, image=self.pixel, compound="c", width=100,
-                               height=100, bd=0, highlightthickness=0,
-                               command=partial(self.display_message, "Trigger value decreased."))
-        dec_by_one.configure(foreground="red")
-        dec_by_one.grid(column=0, row=2, sticky="W")
+        inc_by_one.grid(column=0, row=2)
 
-        inc_by_ten = tk.Button(self, text="Increment (+10)", padx=0, pady=0, image=self.pixel, compound="c", width=100,
-                               height=100, bd=0, highlightthickness=0,
+        inc_by_ten = tk.Button(self, text="+10", width=8, height=4, bg="gray", fg="green", padx=10, pady=10,
                                command=partial(self.display_message, "Trigger value increased."))
-        inc_by_ten.configure(foreground="green")
-        inc_by_ten.grid(column=1, row=1, sticky="W")
+        inc_by_ten.grid(column=0, row=3)
 
-        dec_by_ten = tk.Button(self, text="Decrement (-10)", padx=0, pady=0, image=self.pixel, compound="c", width=100,
-                               height=100, bd=0, highlightthickness=0,
+        dec_by_one = tk.Button(self, text="-1", width=8, height=4, bg="gray", fg="red", padx=10, pady=10,
                                command=partial(self.display_message, "Trigger value decreased."))
-        dec_by_ten.configure(foreground="red")
-        dec_by_ten.grid(column=1, row=2, sticky="W")
+        dec_by_one.grid(column=1, row=2)
+
+        dec_by_ten = tk.Button(self, text="-10", width=8, height=4, bg="gray", fg="red", padx=10, pady=10,
+                               command=partial(self.display_message, "Trigger value decreased."))
+        dec_by_ten.grid(column=1, row=3)
+
+        # Manage the relay duration on/off
+        self.relay_state.set("Off")
+        self.relay_button_text.set("Relay On")
+        relay_on_off = tk.Button(self, textvariable=self.relay_button_text, width=8,
+                                 height=4, bg="gray", fg="red", padx=10, pady=10,
+                                 command=self.toggle_relay)
+        relay_on_off.grid(column=2, row=2)
+
+
+        # inc_by_ten = tk.Button(self, text="Increment (+10)", padx=0, pady=0, compound="c", width=8, height=4,
+        #                        bd=0, highlightthickness=0,
+        #                        command=partial(self.display_message, "Trigger value increased."))
+        # inc_by_ten.configure(foreground="green")
+        # inc_by_ten.grid(column=1, row=1, sticky="W")
+        #
+        # dec_by_ten = tk.Button(self, text="Decrement (-10)", padx=0, pady=0, compound="c", width=8, height=4,
+        #                        bd=0, highlightthickness=0,
+        #                        command=partial(self.display_message, "Trigger value decreased."))
+        # dec_by_ten.configure(foreground="red")
+        # dec_by_ten.grid(column=1, row=2, sticky="W")
 
     def create_labels(self):
         self.message_label = tk.Label(self, textvariable=self.message)
         self.message_label.grid(column=17, row=0, sticky="N", pady=10)
         self.message_label.configure(fg=BB_GOLD, bg=BB_BLUE)
 
-    def create_grid(self):
-        rows = 0
-        while rows < 50:
-            self.rowconfigure(rows, weight=1)
-            self.columnconfigure(rows, weight=1)
-            rows += 1
+        # Goal increment label
+        self.goal_increase_label = tk.Label(self, text="Increase Goal")
+        self.goal_increase_label.grid(column=0, row=1, sticky="N", pady=20)
+        self.goal_increase_label.configure(bg=BB_BLUE, fg=BB_GOLD)
+
+        # Goal decrement label
+        self.goal_decrease_label = tk.Label(self, text="Decrease Goal")
+        self.goal_decrease_label.grid(column=1, row=1, sticky="N", pady=20)
+        self.goal_decrease_label.configure(bg=BB_BLUE, fg=BB_GOLD)
+
+        # Manage relay label
+        self.relay_label = tk.Label(self, text="Manage Relay")
+        self.relay_label.grid(column=2, row=1, sticky="N", pady=20)
+        self.relay_label.configure(bg=BB_BLUE, fg=BB_GOLD)
+
 
     def mark_and_update(self, button_id):
         if button_id not in self.clicked:
@@ -113,6 +138,19 @@ class Root(tk.Tk):
 
     def display_message(self, msg):
         self.message.set(msg)
+
+    def toggle_relay(self):
+        current = self.relay_state.get()
+
+        if current == "On":
+            self.relay_state.set("Off")
+            self.display_message("Relay {}".format(self.relay_state.get()))
+            self.relay_button_text.set("Relay {}".format(current))
+
+        elif current == "Off":
+            self.relay_state.set("On")
+            self.display_message("Relay {}".format(self.relay_state.get()))
+            self.relay_button_text.set("Relay {}".format(current))
 
 
 def inc_button_click(counter):
