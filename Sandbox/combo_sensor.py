@@ -14,6 +14,11 @@ GPIO.setup(GPIO_TRIGGER, GPIO.OUT)
 GPIO.setup(GPIO_ECHO, GPIO.IN)
 GPIO.setup(GPIO_PIR, GPIO.IN)  # PIR
 
+#Ceiling on distance from US sensor
+#Distances greater than this will be thrown out to account for door being open
+# TODO: adjust based on distance from sensor to door/wall
+MAX_DISTANCE = 210
+
 
 def distance():
     """
@@ -47,6 +52,36 @@ def distance():
 
     return distance
 
+def findInitial(arrayVals):
+    """
+    find the distane between sensor and object at start of polling
+    :return: averaged distance
+    """
+    # for small arrays of valid distances
+    if len(arrayVals) < 5:
+        divisor = len(arrayVals)
+    else:
+        divisor = 5
+    newArray = arrayVals[0:divisor]
+    maxVal = sum(newArray)
+    maxVal = maxVal/divisor
+    return maxVal
+
+def findFinal(arrayVals):
+    """
+    find distance between sensor and object at end of polling
+    :return: averaged distance
+    """
+    arrayVals.reverse()
+    # for small arrays of valid distances
+    if len(arrayVals) < 5:
+        divisor = len(arrayVals)
+    else:
+        divisor = 5
+    newArray = arrayVals[0:divisor]
+    maxVal = sum(newArray)
+    maxVal = maxVal/divisor
+    return maxVal
 
 def run_sensors():
     """
@@ -58,11 +93,39 @@ def run_sensors():
         time.sleep(2)  # to stabilize sensor
         count = 0
         while True:
-            print("No motion...")
             if GPIO.input(25):
                 print("Motion Detected...")
-                print(distance())
-                count += 1
+                
+                i = 0
+                dArray = []
+                # TODO: number of polls may need adjustment
+                for i in range(0,50):
+                    dist = distance()
+                    if dist < MAX_DISTANCE:
+                       dArray.append(dist)
+                       x=1
+                    i = i + 1
+                    # TODO: polling frequency may need adjustment
+                    time.sleep(.1)
+                for item in dArray:
+                    print(item)
+                
+                initial = findInitial(dArray)
+                final = findFinal(dArray)
+                print"Initial: ", initial
+                print"Final: ", final
+
+
+                # TODO: add possible padding value to account for standing in doorway
+                if (initial - final) > 0:
+                    print("customer enters")
+                    count = count + 1
+                else:
+                    print("customer exits")
+
+                print(count)
+                
+
                 time.sleep(3)  # to avoid multiple detection
             time.sleep(0.1)  # loop delay, should be less than detection delay
 
