@@ -88,26 +88,20 @@ class Root(tk.Tk):
                                command=partial(self.display_message, "Trigger value decreased."))
         dec_by_ten.grid(column=1, row=3)
 
-        # Manage the relay duration on/off
+        # Manage the relay duration, and on/off
         self.relay_state.set("Off")
         self.relay_button_text.set("Relay On")
-        relay_on_off = tk.Button(self, textvariable=self.relay_button_text, width=8,
-                                 height=4, bg="gray", fg="red", padx=10, pady=10,
-                                 command=self.toggle_relay)
-        relay_on_off.grid(column=2, row=2)
+        relay_on_off = tk.Button(self, textvariable=self.relay_button_text, width=8, height=4, bg="gray", fg="red",
+                                 padx=10, pady=10, command=self.toggle_relay)
+        relay_on_off.grid(column=3, row=2)
 
+        relay_dur_inc = tk.Button(self, text="+10 sec", width=8, height=4, bg="gray", fg="green", padx=10, pady=10,
+                                  command=partial(self.display_message, "Relay duration increased 10 seconds."))
+        relay_dur_inc.grid(column=3, row=3)
 
-        # inc_by_ten = tk.Button(self, text="Increment (+10)", padx=0, pady=0, compound="c", width=8, height=4,
-        #                        bd=0, highlightthickness=0,
-        #                        command=partial(self.display_message, "Trigger value increased."))
-        # inc_by_ten.configure(foreground="green")
-        # inc_by_ten.grid(column=1, row=1, sticky="W")
-        #
-        # dec_by_ten = tk.Button(self, text="Decrement (-10)", padx=0, pady=0, compound="c", width=8, height=4,
-        #                        bd=0, highlightthickness=0,
-        #                        command=partial(self.display_message, "Trigger value decreased."))
-        # dec_by_ten.configure(foreground="red")
-        # dec_by_ten.grid(column=1, row=2, sticky="W")
+        relay_dur_dec = tk.Button(self, text="-10 sec", width=8, height=4, bg="gray", fg="red", padx=10, pady=10,
+                                  command=partial(self.display_message, "Relay duration decreased 10 seconds."))
+        relay_dur_dec.grid(column=3, row=4)
 
     def create_labels(self):
         self.message_label = tk.Label(self, textvariable=self.message)
@@ -126,7 +120,7 @@ class Root(tk.Tk):
 
         # Manage relay label
         self.relay_label = tk.Label(self, text="Manage Relay")
-        self.relay_label.grid(column=2, row=1, sticky="N", pady=20)
+        self.relay_label.grid(column=3, row=1, sticky="N", pady=20)
         self.relay_label.configure(bg=BB_BLUE, fg=BB_GOLD)
 
 
