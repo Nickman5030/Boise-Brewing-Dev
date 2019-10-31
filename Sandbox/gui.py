@@ -5,7 +5,6 @@
 :author: Garrett Allen
 """
 
-
 import os
 import tkinter as tk
 from functools import partial
@@ -15,6 +14,7 @@ BB_GOLD = "#f2d652"
 APPLICATION_TITLE = "Door Sensor"
 WINDOW_HEIGHT = 480
 WINDOW_WIDTH = 800
+
 
 def set_text(var, msg):
     """
@@ -50,7 +50,7 @@ def toggle_on_off(btn_var, msg_var, toggle_type):
     else:
         btn_var.set("Off")
         msg_var.set("{} On".format(msg))
-
+        
 
 if __name__ == "__main__":
     # Data variables for use by GUI

@@ -44,8 +44,8 @@ if __name__ == '__main__':
     try:
         while True:
             dist = distance()
-            if dist < 10:
-                print ("Holy Shit!")
+            if dist < 15:
+                print ("Blocked!")
             else:
                 print (dist)
             time.sleep(.1)
