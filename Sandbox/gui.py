@@ -122,9 +122,9 @@ if __name__ == "__main__":
                                 command=partial(set_text, message, "Trigger value increased."))
 
     col1_label = tk.Label(btn_col_1_frame, text="Decrease Goal", font="Times 14", bg=BB_BLUE, fg=BB_GOLD)
-    goal_dec_1_btn = tk.Button(btn_col_1_frame, text="+1", width=8, height=4, bg="gray", fg="black", padx=10, pady=10,
+    goal_dec_1_btn = tk.Button(btn_col_1_frame, text="-1", width=8, height=4, bg="gray", fg="black", padx=10, pady=10,
                                command=partial(set_text, message, "Trigger value decreased."))
-    goal_dec_10_btn = tk.Button(btn_col_1_frame, text="+10", width=8, height=4, bg="gray", fg="black", padx=10, pady=10,
+    goal_dec_10_btn = tk.Button(btn_col_1_frame, text="-10", width=8, height=4, bg="gray", fg="black", padx=10, pady=10,
                                 command=partial(set_text, message, "Trigger value decreased."))
 
     col2_label = tk.Label(btn_col_2_frame, text="Goal Reset/Skip", font="Times 14", bg=BB_BLUE, fg=BB_GOLD)
