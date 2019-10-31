@@ -1,5 +1,6 @@
 import RPi.GPIO as GPIO
 import time
+from gui import *
 
 # GPIO Mode (BOARD / BCM)
 GPIO.setmode(GPIO.BCM)
@@ -53,37 +54,37 @@ def distance():
     return distance
 
 
-def findInitial(arrayVals):
+def find_initial(array_vals):
     """
     find the distane between sensor and object at start of polling
     :return: averaged distance
     """
     # for small arrays of valid distances
-    if len(arrayVals) < 5:
-        divisor = len(arrayVals)
+    if len(array_vals) < 5:
+        divisor = len(array_vals)
     else:
         divisor = 5
-    newArray = arrayVals[0:divisor]
-    maxVal = sum(newArray)
-    maxVal = maxVal / divisor
-    return maxVal
+    new_array = array_vals[0:divisor]
+    max_val = sum(new_array)
+    max_val = max_val / divisor
+    return max_val
 
 
-def findFinal(arrayVals):
+def find_final(array_vals):
     """
     find distance between sensor and object at end of polling
     :return: averaged distance
     """
-    arrayVals.reverse()
+    array_vals.reverse()
     # for small arrays of valid distances
-    if len(arrayVals) < 5:
-        divisor = len(arrayVals)
+    if len(array_vals) < 5:
+        divisor = len(array_vals)
     else:
         divisor = 5
-    newArray = arrayVals[0:divisor]
-    maxVal = sum(newArray)
-    maxVal = maxVal / divisor
-    return maxVal
+    new_array = array_vals[0:divisor]
+    max_val = sum(new_array)
+    max_val = max_val / divisor
+    return max_val
 
 
 def run_sensors():
@@ -100,21 +101,21 @@ def run_sensors():
                 print("Motion Detected...")
 
                 i = 0
-                dArray = []
+                distance_array = []
                 # TODO: number of polls may need adjustment
                 for i in range(0, 50):
                     dist = distance()
                     if dist < MAX_DISTANCE:
-                        dArray.append(dist)
+                        distance_array.append(dist)
                         x = 1
                     i = i + 1
                     # TODO: polling frequency may need adjustment
                     time.sleep(.1)
-                for item in dArray:
+                for item in distance_array:
                     print(item)
 
-                initial = findInitial(dArray)
-                final = findFinal(dArray)
+                initial = find_initial(distance_array)
+                final = find_final(distance_array)
                 print("Initial: ", initial)
                 print("Final: ", final)
 
@@ -122,6 +123,7 @@ def run_sensors():
                 if (initial - final) > 0:
                     print("customer enters")
                     count = count + 1
+
                 else:
                     print("customer exits")
 
