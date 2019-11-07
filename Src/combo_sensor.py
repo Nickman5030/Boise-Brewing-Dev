@@ -1,6 +1,6 @@
 import RPi.GPIO as GPIO
 import time
-from gui import *
+#from gui import *
 
 # GPIO Mode (BOARD / BCM)
 GPIO.setmode(GPIO.BCM)
@@ -60,7 +60,9 @@ def find_initial(array_vals):
     :return: averaged distance
     """
     # for small arrays of valid distances
-    if len(array_vals) < 5:
+    if len(array_vals) == 0:
+        divisor = 1
+    elif len(array_vals) < 5:
         divisor = len(array_vals)
     else:
         divisor = 5
@@ -77,7 +79,9 @@ def find_final(array_vals):
     """
     array_vals.reverse()
     # for small arrays of valid distances
-    if len(array_vals) < 5:
+    if len(array_vals) == 0:
+        divisor = 1
+    elif len(array_vals) < 5:
         divisor = len(array_vals)
     else:
         divisor = 5
@@ -96,24 +100,24 @@ def run_sensors():
     try:
         time.sleep(2)  # to stabilize sensor
         count = 0
+        total_count = 0
         while True:
+            # TODO: set the value that will trigger the prize
+            #target_val = get_target_val(), get this from the gui
+            target_val = 3
+            # Read from the PIR sensor
             if GPIO.input(25):
                 print("Motion Detected...")
-
-                i = 0
                 distance_array = []
                 # TODO: number of polls may need adjustment
-                for i in range(0, 50):
+                for i in range(0, 30):
                     dist = distance()
+                    # only add values less than the max distance. Helps with inaccurate reads, or reads from
+                    # areas we don't care about
                     if dist < MAX_DISTANCE:
                         distance_array.append(dist)
-                        x = 1
-                    i = i + 1
                     # TODO: polling frequency may need adjustment
                     time.sleep(.1)
-                for item in distance_array:
-                    print(item)
-
                 initial = find_initial(distance_array)
                 final = find_final(distance_array)
                 print("Initial: ", initial)
@@ -123,11 +127,18 @@ def run_sensors():
                 if (initial - final) > 0:
                     print("customer enters")
                     count = count + 1
-
+                    total_count = total_count + 1
+                    if count == target_val:
+                        print("Target Achieved!")
+                        count = 0
+                # Accounts for the occasional empty array, no valid values from ultrasonic
+                elif (initial - final) == 0:
+                    continue
                 else:
                     print("customer exits")
 
-                print(count)
+                print("progress to target {0}/{1}".format(count, target_val))
+                print("total customers {0}".format(total_count))
 
                 time.sleep(3)  # to avoid multiple detection
             time.sleep(0.1)  # loop delay, should be less than detection delay
