@@ -6,116 +6,45 @@
 """
 
 import os
+import pickle
 import tkinter as tk
 from functools import partial
+from sensor_data import SensorData
 
+
+APPLICATION_TITLE = "Door Sensor"
 BB_BLUE = "#17286d"
 BB_GOLD = "#f2d652"
-APPLICATION_TITLE = "Door Sensor"
+DATA_FILE = os.path.join(os.getcwd(), "data", "sensor_data.py")
 WINDOW_HEIGHT = 480
 WINDOW_WIDTH = 800
 
 
-# Globals for use by sensor program
-class SensorData(object):
-    def __init__(self):
-        self.goal = 0
-        self.relay_state = 1  # 1 = On, 0 = Off
-        self.sensor_state = 1 # 1 = On, 0 = Off
-        self.reset = 0  # 1 = Trigger Reset, 0 = No reset
-        self.relay_duration = 10  # seconds
+# Exposed functions to sensor program
+def _load_sensor_data():
+    """
+        Function to load the pickled class from the file for interaction with
 
-    def all(self):
-        """
-            Returns a dictionary of all the current data points
-
-        :return: Dict
-        """
-        return self.__dict__
-
-    def get_goal(self):
-        """
-        :return: Current value of goal
-        """
-        return self.goal
-
-    def set_goal(self, val):
-        """
-            Updates the value in goal
-
-        :param val: Value to be assigned to goal
-        :return: None
-        """
-        self.goal = val
-
-    def get_sensor_state(self):
-        return self.sensor_state
-
-    def toggle_sensor_state(self):
-        """
-            Sets the on/off state of the sensors
-
-            1 - ON
-            0 - OFF
-
-        :return: None
-        """
-        self.sensor_state = int(not self.sensor_state)
-
-    def get_relay_state(self):
-        return self.relay_state
-
-    def toggle_relay_state(self):
-        """
-            Sets the on/off state of the sensors
-
-            1 - ON
-            0 - OFF
-
-        :return: None
-        """
-        self.relay_state = int(not self.relay_state)
-
-    def get_reset(self):
-        """
-        :return: Current value of the reset attribute
-        """
-        return self.reset
-
-    def toggle_reset(self):
-        """
-            Toggles value of reset
-
-            1 - Trigger a reset
-            0 - Continue normal operation
-
-        :return: None
-        """
-        self.reset = int(not self.reset)
-
-    def get_relay_duration(self):
-        """
-        :return: Current value of the relay duration setting
-        """
-        return self.relay_duration
-
-    def set_relay_duration(self, seconds):
-        """
-            Sets the value of relation to the provided number of seconds
-
-        :param seconds: New duration to be set
-        :return: None
-        """
-        self.relay_duration = seconds
+    :return: Returns a usable, loaded instance of SensorData
+    """
+    with open(DATA_FILE, "rb") as data_file:
+        return pickle.load(data_file)
 
 
-# Static object that can be interacted with by the sensor program
-sensor_data = SensorData()
-        
+def _write_sensor_data(cls):
+    """
+        Writes the current state of SensorData class to a file to persist data
+
+    :param cls: Instance of SensorData to be written to disk
+    :return: None
+    """
+    with open(DATA_FILE, "wb") as data_file:
+        pickle.dump(cls, data_file)
+
 
 if __name__ == "__main__":
     # Functions to be used by the GUI
-    def set_text(var, msg):
+    def _set_text(var, msg):
         """
             Can be used to set the text of any StringVar variable
 
@@ -126,7 +55,7 @@ if __name__ == "__main__":
         var.set(msg)
 
 
-    def toggle_on_off(btn_var, msg_var, toggle_type):
+    def _toggle_on_off(btn_var, msg_var, toggle_type):
         """
             Sets the message displayed on the button to opposite of current state. Sets user feedback message to provided
             text
@@ -150,6 +79,11 @@ if __name__ == "__main__":
             btn_var.set("Off")
             msg_var.set("{} On".format(msg))
 
+    try:
+        sensor_data = _load_sensor_data()
+    except FileNotFoundError:
+        sensor_data = SensorData()
+        _write_sensor_data(sensor_data)
 
     # Data variables for use by GUI
     logo_canvas_width = 175
@@ -215,37 +149,37 @@ if __name__ == "__main__":
     # Create the buttons and the column labels
     col0_label = tk.Label(btn_col_0_frame, text="Increase Goal", font="Times 14", bg=BB_BLUE, fg=BB_GOLD)
     goal_inc_1_btn = tk.Button(btn_col_0_frame, text="+1", width=8, height=4, bg="gray", fg="black", padx=10, pady=10,
-                               command=partial(set_text, message, "Trigger value increased."))
+                               command=partial(_set_text, message, "Trigger value increased."))
     goal_inc_10_btn = tk.Button(btn_col_0_frame, text="+10", width=8, height=4, bg="gray", fg="black", padx=10, pady=10,
-                                command=partial(set_text, message, "Trigger value increased."))
+                                command=partial(_set_text, message, "Trigger value increased."))
 
     col1_label = tk.Label(btn_col_1_frame, text="Decrease Goal", font="Times 14", bg=BB_BLUE, fg=BB_GOLD)
     goal_dec_1_btn = tk.Button(btn_col_1_frame, text="-1", width=8, height=4, bg="gray", fg="black", padx=10, pady=10,
-                               command=partial(set_text, message, "Trigger value decreased."))
+                               command=partial(_set_text, message, "Trigger value decreased."))
     goal_dec_10_btn = tk.Button(btn_col_1_frame, text="-10", width=8, height=4, bg="gray", fg="black", padx=10, pady=10,
-                                command=partial(set_text, message, "Trigger value decreased."))
+                                command=partial(_set_text, message, "Trigger value decreased."))
 
     col2_label = tk.Label(btn_col_2_frame, text="Goal Reset/Skip", font="Times 14", bg=BB_BLUE, fg=BB_GOLD)
     goal_reset_btn = tk.Button(btn_col_2_frame, text="Reset", width=8, height=4, bg="gray", fg="black", padx=10,
-                               pady=10, command=partial(set_text, message, "Trigger value reset."))
+                               pady=10, command=partial(_set_text, message, "Trigger value reset."))
     goal_skip_btn = tk.Button(btn_col_2_frame, text="Skip", width=8, height=4, bg="gray", fg="black", padx=10,
-                              pady=10, command=partial(set_text, message, "Trigger skipped"))
+                              pady=10, command=partial(_set_text, message, "Trigger skipped"))
 
     col3_label = tk.Label(btn_col_3_frame, text="Manage Relay", font="Times 14", bg=BB_BLUE, fg=BB_GOLD)
     relay_toggle_btn = tk.Button(btn_col_3_frame, textvariable=relay_toggle_text, width=8, height=4, bg="gray",
                                  fg="black", padx=10, pady=10,
-                                 command=partial(toggle_on_off, relay_toggle_text, message, "relay"))
+                                 command=partial(_toggle_on_off, relay_toggle_text, message, "relay"))
     relay_inc_dur_btn = tk.Button(btn_col_3_frame, text="Longer", width=8, height=4, bg="gray",
                                   fg="black", padx=10, pady=10,
-                                  command=partial(set_text, message, "Relay Duration Increased."))
+                                  command=partial(_set_text, message, "Relay Duration Increased."))
     relay_dec_dur_btn = tk.Button(btn_col_3_frame, text="Shorter", width=8, height=4, bg="gray",
                                   fg="black", padx=10, pady=10,
-                                  command=partial(set_text, message, "Relay Duration Decreased."))
+                                  command=partial(_set_text, message, "Relay Duration Decreased."))
 
     col4_label = tk.Label(btn_col_4_frame, text="Sensors On/Off", font="Times 14", bg=BB_BLUE, fg=BB_GOLD)
     sensor_toggle_btn = tk.Button(btn_col_4_frame, textvariable=sensor_toggle_text, width=8, height=4, bg="gray",
                                   fg="black", padx=10, pady=10,
-                                  command=partial(toggle_on_off, sensor_toggle_text, message, "sensor"))
+                                  command=partial(_toggle_on_off, sensor_toggle_text, message, "sensor"))
 
     # Layout for buttons and labels
     col0_label.grid(row=1)
