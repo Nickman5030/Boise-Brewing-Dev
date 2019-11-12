@@ -54,30 +54,16 @@ def distance():
     return distance
 
 
-def find_initial(array_vals):
+def find_average(array_vals, reverse=False):
     """
-    find the distane between sensor and object at start of polling
+    find distance between sensor and object at end of polling. Finds final by default
+    can set reverse True to find initial
+    :param: array of value to find the average of
+    :param: whether to reverse the array or not. Set True to find initial
     :return: averaged distance
     """
-    # for small arrays of valid distances
-    if len(array_vals) == 0:
-        divisor = 1
-    elif len(array_vals) < 5:
-        divisor = len(array_vals)
-    else:
-        divisor = 5
-    new_array = array_vals[0:divisor]
-    max_val = sum(new_array)
-    max_val = max_val / divisor
-    return max_val
-
-
-def find_final(array_vals):
-    """
-    find distance between sensor and object at end of polling
-    :return: averaged distance
-    """
-    array_vals.reverse()
+    if reverse:
+        array_vals.reverse()
     # for small arrays of valid distances
     if len(array_vals) == 0:
         divisor = 1
@@ -118,8 +104,8 @@ def run_sensors():
                         distance_array.append(dist)
                     # TODO: polling frequency may need adjustment
                     time.sleep(.1)
-                initial = find_initial(distance_array)
-                final = find_final(distance_array)
+                initial = find_average(distance_array, reverse=True)
+                final = find_average(distance_array)
                 print("Initial: ", initial)
                 print("Final: ", final)
 
