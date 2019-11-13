@@ -1,3 +1,11 @@
+"""
+    This is a class to store the data that needs to be shared between combo_sensors.py and gui.py. This object is
+    pickled and written to a file by interface.py
+
+:author: Garrett Allen
+"""
+
+
 class SensorData(object):
     def __init__(self):
         self.goal = 0
