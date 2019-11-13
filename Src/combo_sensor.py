@@ -1,6 +1,6 @@
 import RPi.GPIO as GPIO
 import time
-#from gui import *
+import interface
 
 # GPIO Mode (BOARD / BCM)
 GPIO.setmode(GPIO.BCM)
@@ -54,7 +54,7 @@ def distance():
     return distance
 
 
-def find_average(array_vals, reverse=False):
+def find_average(arr, reverse=False):
     """
     find distance between sensor and object at end of polling. Finds final by default
     can set reverse True to find initial
@@ -62,6 +62,7 @@ def find_average(array_vals, reverse=False):
     :param: whether to reverse the array or not. Set True to find initial
     :return: averaged distance
     """
+    array_vals = arr.copy()
     if reverse:
         array_vals.reverse()
     # for small arrays of valid distances
@@ -88,46 +89,52 @@ def run_sensors():
         count = 0
         total_count = 0
         while True:
-            # TODO: set the value that will trigger the prize
-            #target_val = get_target_val(), get this from the gui
-            target_val = 3
-            # Read from the PIR sensor
-            if GPIO.input(25):
-                print("Motion Detected...")
-                distance_array = []
-                # TODO: number of polls may need adjustment
-                for i in range(0, 30):
-                    dist = distance()
-                    # only add values less than the max distance. Helps with inaccurate reads, or reads from
-                    # areas we don't care about
-                    if dist < MAX_DISTANCE:
-                        distance_array.append(dist)
-                    # TODO: polling frequency may need adjustment
-                    time.sleep(.1)
-                initial = find_average(distance_array, reverse=True)
-                final = find_average(distance_array)
-                print("Initial: ", initial)
-                print("Final: ", final)
+            # check if the sensor is set to be on or off
+            if interface.get_sensor_state() == 1:
+                # get the value that will trigger a prize
+                target_val = interface.get_goal()
+                if interface.get_reset() == 1:
+                    # resets progress to goal
+                    count = 0
+                    # changes reset state back to zero
+                    interface.toggle_reset()
+                # Read from the PIR sensor
+                if GPIO.input(25):
+                    print("Motion Detected...")
+                    distance_array = []
+                    # TODO: number of polls may need adjustment
+                    for i in range(0, 30):
+                        dist = distance()
+                        # only add values less than the max distance. Helps with inaccurate reads, or reads from
+                        # areas we don't care about
+                        if dist < MAX_DISTANCE:
+                            distance_array.append(dist)
+                        # TODO: polling frequency may need adjustment
+                        time.sleep(.1)
+                    initial = find_average(distance_array, reverse=True)
+                    final = find_average(distance_array)
+                    print("Initial: ", initial)
+                    print("Final: ", final)
 
-                # TODO: add possible padding value to account for standing in doorway
-                if (initial - final) > 0:
-                    print("customer enters")
-                    count = count + 1
-                    total_count = total_count + 1
-                    if count == target_val:
-                        print("Target Achieved!")
-                        count = 0
-                # Accounts for the occasional empty array, no valid values from ultrasonic
-                elif (initial - final) == 0:
-                    continue
-                else:
-                    print("customer exits")
+                    # TODO: add possible padding value to account for standing in doorway
+                    if (initial - final) > 0:
+                        print("customer enters")
+                        count = count + 1
+                        total_count = total_count + 1
+                        if count == target_val:
+                            print("Target Achieved!")
+                            count = 0
+                    # Accounts for the occasional empty array, no valid values from ultrasonic
+                    elif (initial - final) == 0:
+                        continue
+                    else:
+                        print("customer exits")
 
-                print("progress to target {0}/{1}".format(count, target_val))
-                print("total customers {0}".format(total_count))
+                    print("progress to target {0}/{1}".format(count, target_val))
+                    print("total customers {0}".format(total_count))
 
-                time.sleep(3)  # to avoid multiple detection
-            time.sleep(0.1)  # loop delay, should be less than detection delay
+                    time.sleep(3)  # to avoid multiple detection
+                time.sleep(0.1)  # loop delay, should be less than detection delay
 
     except:
         GPIO.cleanup()
