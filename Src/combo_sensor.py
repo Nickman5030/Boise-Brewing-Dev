@@ -89,7 +89,7 @@ def run_sensors():
         time.sleep(2)  # to stabilize sensor
         count = 0
         total_count = 0
-        start_time = None
+        start_time = datetime.now()
         while True:
             # check if the sensor is set to be on or off
             if interface.get_sensor_state() == 1:
