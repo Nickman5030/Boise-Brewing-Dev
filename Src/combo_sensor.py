@@ -1,5 +1,6 @@
 import RPi.GPIO as GPIO
 import time
+from datetime import datetime
 import interface
 
 # GPIO Mode (BOARD / BCM)
@@ -88,9 +89,15 @@ def run_sensors():
         time.sleep(2)  # to stabilize sensor
         count = 0
         total_count = 0
+        start_time = None
         while True:
             # check if the sensor is set to be on or off
             if interface.get_sensor_state() == 1:
+                current_time = datetime.now()
+                if interface.get_relay_state() == 1:
+                    if (current_time - start_time).total_seconds() >= 10:
+                        interface.toggle_relay_state()
+                        start_time = datetime.now()
                 # get the value that will trigger a prize
                 target_val = interface.get_goal()
                 if interface.get_reset() == 1:
@@ -123,6 +130,10 @@ def run_sensors():
                         total_count = total_count + 1
                         if count == target_val:
                             print("Target Achieved!")
+                            interface.toggle_relay_state()
+                            relay_state = interface.get_relay_state()
+                            if relay_state == 1:
+                                start_time = datetime.now()
                             count = 0
                     # Accounts for the occasional empty array, no valid values from ultrasonic
                     elif (initial - final) == 0:
