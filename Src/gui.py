@@ -1,90 +1,147 @@
 """
-    This is a scripted version of the Boise Brewing GUI, as an OO approach ended up with a God class.
-
+    This is the GUI program for Boise Brewing's Beer Reward sensors
 
 :author: Garrett Allen
 """
-
+import interface
 import os
-import pickle
 import tkinter as tk
 from functools import partial
-from sensor_data import SensorData
 
 
 APPLICATION_TITLE = "Door Sensor"
 BB_BLUE = "#17286d"
 BB_GOLD = "#f2d652"
-DATA_FILE = os.path.join(os.getcwd(), "data", "sensor_data.py")
 WINDOW_HEIGHT = 480
 WINDOW_WIDTH = 800
 
 
-# Exposed functions to sensor program
-def _load_sensor_data():
+# Private functions to be used by the GUI
+def __set_text(var, msg):
     """
-        Function to load the pickled class from the file for interaction with
+        Can be used to set the text of any StringVar variable
 
-    :return: Returns a usable, loaded instance of SensorData
-    """
-    with open(DATA_FILE, "rb") as data_file:
-        return pickle.load(data_file)
-
-
-def _write_sensor_data(cls):
-    """
-        Writes the current state of SensorData class to a file to persist data
-
-    :param cls: Instance of SensorData to be written to disk
+    :param var: A StringVar object
+    :param msg: The message you want the var set to
     :return: None
     """
-    with open(DATA_FILE, "wb") as data_file:
-        pickle.dump(cls, data_file)
+    var.set(msg)
+
+
+def __toggle_on_off(btn_var, msg_var, toggle_type):
+    """
+        Sets the message displayed on the button to opposite of current state. Sets user feedback message to provided
+        text
+
+    :param btn_var: Variable that is used to display the text on the button itself
+    :param msg_var: Variable that controls messages displayed at top of GUI
+    :param toggle_type: Specifies which button is being toggled to display proper messages
+    :return: None
+    """
+    msg = ""
+    if toggle_type == "relay":
+        msg = "Relay"
+    elif toggle_type == "sensor":
+        msg = "Sensor"
+
+    current_btn_text = btn_var.get()
+    if current_btn_text == "Off":
+        btn_var.set("On")
+        msg_var.set("{} Off".format(msg))
+    else:
+        btn_var.set("Off")
+        msg_var.set("{} On".format(msg))
+
+
+def __set_message_and_goal(label, msg, val):
+    """
+        Assigns msg to label and then updates the SensorData goal field to val
+
+    :param label: Tkinter Label instance whose value we want changed
+    :param msg: Message to assign to label
+    :param val: Value to change goal by
+    :return: None
+    """
+    __set_text(label, msg)
+
+    current_goal = interface.get_goal()
+    interface.set_goal(current_goal + val)
+
+
+def __toggle_sensor(btn_label, msg_label):
+    """
+        Sets the on/off state of the sensors
+
+        1 - ON
+        0 - OFF
+
+    :param btn_label: Button label to toggle
+    :param msg_label: Message label at top of screen to show that something happened
+    :return: None
+    """
+    interface.toggle_sensor_state()
+    __toggle_on_off(btn_label, msg_label, "sensor")
+
+
+def __toggle_relay(btn_label, msg_label):
+    """
+        Sets the on/off state of the sensors
+
+        1 - ON
+        0 - OFF
+
+    :param btn_label: Button label to toggle
+    :param msg_label: Message label at top of screen to show that something happened
+    :return: None
+    """
+
+    interface.toggle_relay_state()
+    __toggle_on_off(btn_label, msg_label, "relay")
+
+
+def __toggle_reset_and_message(var, msg):
+    """
+        Toggles value of reset
+
+        1 - Trigger a reset
+        0 - Continue normal operation
+
+    :param var: Label that will have it's message set
+    :param msg: Message to assign to the variable
+    :return: None
+    """
+    interface.toggle_reset()
+    __set_text(var, msg)
+
+
+def __set_relay_duration(var, msg, seconds):
+    """
+        Sets the value of relation to the provided number of seconds
+
+    :param var: Label that will have it's message set
+    :param msg: Message to assign to the variable
+    :param seconds: New duration to be set
+    :return: None
+    """
+    current_duration = interface.get_relay_duration()
+    interface.set_relay_duration(current_duration + seconds)
+    __set_text(var, msg)
+
+
+def __skip_goal(var, msg):
+    """
+        Sets relay duration to 0, and increases the goal by 1
+
+    :param var: Label that will have it's message set
+    :param msg: Message to assign to the variable
+    :return: None
+    """
+    interface.set_relay_duration(0)
+    interface.set_goal(interface.get_goal() + 1)
+    __set_text(var, msg)
 
 
 if __name__ == "__main__":
-    # Functions to be used by the GUI
-    def _set_text(var, msg):
-        """
-            Can be used to set the text of any StringVar variable
-
-        :param var: A StringVar object
-        :param msg: The message you want the var set to
-        :return: None
-        """
-        var.set(msg)
-
-
-    def _toggle_on_off(btn_var, msg_var, toggle_type):
-        """
-            Sets the message displayed on the button to opposite of current state. Sets user feedback message to provided
-            text
-
-        :param btn_var: Variable that is used to display the text on the button itself
-        :param msg_var: Variable that controls messages displayed at top of GUI
-        :param toggle_type: Specifies which button is being toggled to display proper messages
-        :return: None
-        """
-        msg = ""
-        if toggle_type == "relay":
-            msg = "Relay"
-        elif toggle_type == "sensor":
-            msg = "Sensor"
-
-        current_btn_text = btn_var.get()
-        if current_btn_text == "Off":
-            btn_var.set("On")
-            msg_var.set("{} Off".format(msg))
-        else:
-            btn_var.set("Off")
-            msg_var.set("{} On".format(msg))
-
-    try:
-        sensor_data = _load_sensor_data()
-    except FileNotFoundError:
-        sensor_data = SensorData()
-        _write_sensor_data(sensor_data)
-
     # Data variables for use by GUI
     logo_canvas_width = 175
     logo_canvas_height = 58
@@ -149,37 +206,37 @@ if __name__ == "__main__":
     # Create the buttons and the column labels
     col0_label = tk.Label(btn_col_0_frame, text="Increase Goal", font="Times 14", bg=BB_BLUE, fg=BB_GOLD)
     goal_inc_1_btn = tk.Button(btn_col_0_frame, text="+1", width=8, height=4, bg="gray", fg="black", padx=10, pady=10,
-                               command=partial(_set_text, message, "Trigger value increased."))
+                               command=partial(__set_message_and_goal, message, "Trigger value increased.", 1))
     goal_inc_10_btn = tk.Button(btn_col_0_frame, text="+10", width=8, height=4, bg="gray", fg="black", padx=10, pady=10,
-                                command=partial(_set_text, message, "Trigger value increased."))
+                                command=partial(__set_message_and_goal, message, "Trigger value increased.", 10))
 
     col1_label = tk.Label(btn_col_1_frame, text="Decrease Goal", font="Times 14", bg=BB_BLUE, fg=BB_GOLD)
     goal_dec_1_btn = tk.Button(btn_col_1_frame, text="-1", width=8, height=4, bg="gray", fg="black", padx=10, pady=10,
-                               command=partial(_set_text, message, "Trigger value decreased."))
+                               command=partial(__set_message_and_goal, message, "Trigger value decreased.", -1))
     goal_dec_10_btn = tk.Button(btn_col_1_frame, text="-10", width=8, height=4, bg="gray", fg="black", padx=10, pady=10,
-                                command=partial(_set_text, message, "Trigger value decreased."))
+                                command=partial(__set_message_and_goal, message, "Trigger value decreased.", -10))
 
     col2_label = tk.Label(btn_col_2_frame, text="Goal Reset/Skip", font="Times 14", bg=BB_BLUE, fg=BB_GOLD)
     goal_reset_btn = tk.Button(btn_col_2_frame, text="Reset", width=8, height=4, bg="gray", fg="black", padx=10,
-                               pady=10, command=partial(_set_text, message, "Trigger value reset."))
+                               pady=10, command=partial(__toggle_reset_and_message, message, "Trigger value reset."))
     goal_skip_btn = tk.Button(btn_col_2_frame, text="Skip", width=8, height=4, bg="gray", fg="black", padx=10,
-                              pady=10, command=partial(_set_text, message, "Trigger skipped"))
+                              pady=10, command=partial(__skip_goal, message, "Trigger skipped"))
 
     col3_label = tk.Label(btn_col_3_frame, text="Manage Relay", font="Times 14", bg=BB_BLUE, fg=BB_GOLD)
     relay_toggle_btn = tk.Button(btn_col_3_frame, textvariable=relay_toggle_text, width=8, height=4, bg="gray",
                                  fg="black", padx=10, pady=10,
-                                 command=partial(_toggle_on_off, relay_toggle_text, message, "relay"))
+                                 command=partial(__toggle_relay, relay_toggle_text, message))
     relay_inc_dur_btn = tk.Button(btn_col_3_frame, text="Longer", width=8, height=4, bg="gray",
                                   fg="black", padx=10, pady=10,
-                                  command=partial(_set_text, message, "Relay Duration Increased."))
+                                  command=partial(__set_relay_duration, message, "Relay Duration Increased.", 5))
     relay_dec_dur_btn = tk.Button(btn_col_3_frame, text="Shorter", width=8, height=4, bg="gray",
                                   fg="black", padx=10, pady=10,
-                                  command=partial(_set_text, message, "Relay Duration Decreased."))
+                                  command=partial(__set_relay_duration, message, "Relay Duration Decreased.", -5))
 
     col4_label = tk.Label(btn_col_4_frame, text="Sensors On/Off", font="Times 14", bg=BB_BLUE, fg=BB_GOLD)
     sensor_toggle_btn = tk.Button(btn_col_4_frame, textvariable=sensor_toggle_text, width=8, height=4, bg="gray",
                                   fg="black", padx=10, pady=10,
-                                  command=partial(_toggle_on_off, sensor_toggle_text, message, "sensor"))
+                                  command=partial(__toggle_sensor, sensor_toggle_text, message))
 
     # Layout for buttons and labels
     col0_label.grid(row=1)
