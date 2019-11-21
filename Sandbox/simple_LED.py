@@ -3,6 +3,9 @@
 # GPIO 17 is RED
 # GPIO 27 is GREEN
 # GPIO 22 is BLUE
+
+#IMPORTANT run $sudo pigpiod before running this program
+#usage $python3 simple_LED.py
 import pigpio
 
 PIN=22
