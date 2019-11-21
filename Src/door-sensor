@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+cd /home/pi/Boise-Brewing-Dev/Src
+python3 gui.py &
+python3 combo_sensor.py &
