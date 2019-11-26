@@ -129,7 +129,10 @@ def __set_relay_duration(var, msg, seconds, stats):
     :return: None
     """
     current_duration = int(interface.get_relay_duration())
-    interface.set_relay_duration(current_duration + seconds)
+    duration_val = current_duration + seconds
+    if duration_val < 0:
+        duration_val = 0
+    interface.set_relay_duration(duration_val)
     __set_text(var, msg)
     __configure_and_set_stats_text(stats)
 
