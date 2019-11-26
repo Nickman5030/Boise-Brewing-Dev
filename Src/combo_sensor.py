@@ -10,11 +10,17 @@ GPIO.setmode(GPIO.BCM)
 GPIO_TRIGGER = 23
 GPIO_ECHO = 24
 GPIO_PIR = 25
+GPIO_BLUE = 27
+GPIO_RED = 17
+GPIO_GREEN = 22
 
 # set GPIO direction (IN / OUT)
 GPIO.setup(GPIO_TRIGGER, GPIO.OUT)
 GPIO.setup(GPIO_ECHO, GPIO.IN)
 GPIO.setup(GPIO_PIR, GPIO.IN)  # PIR
+GPIO.setup(GPIO_BLUE, GPIO.OUT)
+GPIO.setup(GPIO_GREEN, GPIO.OUT)
+GPIO.setup(GPIO_RED, GPIO.OUT)
 
 # Ceiling on distance from US sensor
 # Distances greater than this will be thrown out to account for door being open
@@ -78,6 +84,12 @@ def find_average(arr, reverse=False):
     max_val = max_val / divisor
     return max_val
 
+def run_leds():
+    GPIO.output((GPIO_BLUE, GPIO_GREEN, GPIO_RED), GPIO.HIGH)
+
+def stop_leds():
+    GPIO.output((GPIO_BLUE, GPIO_GREEN, GPIO_RED), GPIO.LOW)
+
 
 def run_sensors():
     """
@@ -97,6 +109,7 @@ def run_sensors():
                 if interface.get_relay_state() == 1:
                     if (current_time - start_time).total_seconds() >= 10:
                         interface.toggle_relay_state()
+                        stop_leds()
                         start_time = datetime.now()
                 # get the value that will trigger a prize
                 target_val = interface.get_goal()
@@ -134,6 +147,7 @@ def run_sensors():
                             relay_state = interface.get_relay_state()
                             if relay_state == 1:
                                 start_time = datetime.now()
+                                run_leds()
                             count = 0
                     # Accounts for the occasional empty array, no valid values from ultrasonic
                     elif (initial - final) == 0:
