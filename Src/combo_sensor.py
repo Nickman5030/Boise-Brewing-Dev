@@ -117,7 +117,7 @@ def run_sensors():
             if interface.get_sensor_state() == 1:
                 current_time = datetime.now()
                 if interface.get_relay_state() == 1:
-                    if (current_time - start_time).total_seconds() >= 10:
+                    if (current_time - start_time).total_seconds() >= interface.get_relay_duration():
                         interface.toggle_relay_state()
                         stop_leds()
                         start_time = datetime.now()
