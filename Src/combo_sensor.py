@@ -85,10 +85,20 @@ def find_average(arr, reverse=False):
     max_val = max_val / divisor
     return max_val
 
+
 def run_leds():
+    """
+    turns on all three Leds
+    :return:
+    """
     GPIO.output((GPIO_BLUE, GPIO_GREEN, GPIO_RED), GPIO.HIGH)
 
+
 def stop_leds():
+    """
+    turns off all three leds
+    :return:
+    """
     GPIO.output((GPIO_BLUE, GPIO_GREEN, GPIO_RED), GPIO.LOW)
 
 
