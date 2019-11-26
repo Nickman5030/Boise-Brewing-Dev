@@ -149,3 +149,4 @@ def set_relay_duration(seconds):
     """
     data = __load_sensor_data()
     data.relay_duration = seconds
+    __write_sensor_data(data)

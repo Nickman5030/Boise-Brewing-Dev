@@ -53,7 +53,7 @@ def __toggle_on_off(btn_var, msg_var, toggle_type):
         msg_var.set("{} On".format(msg))
 
 
-def __set_message_and_goal(label, msg, val):
+def __set_message_and_goal(label, msg, val, stats):
     """
         Assigns msg to label and then updates the SensorData goal field to val
 
@@ -65,7 +65,11 @@ def __set_message_and_goal(label, msg, val):
     __set_text(label, msg)
 
     current_goal = interface.get_goal()
-    interface.set_goal(current_goal + val)
+    goal_val = current_goal + val
+    if goal_val < 0:
+        goal_val = 0
+    interface.set_goal(goal_val)
+    __configure_and_set_stats_text(stats)
 
 
 def __toggle_sensor(btn_label, msg_label):
@@ -99,7 +103,7 @@ def __toggle_relay(btn_label, msg_label):
     __toggle_on_off(btn_label, msg_label, "relay")
 
 
-def __toggle_reset_and_message(var, msg):
+def __toggle_reset_and_message(var, msg, stats):
     """
         Toggles value of reset
 
@@ -112,9 +116,10 @@ def __toggle_reset_and_message(var, msg):
     """
     interface.toggle_reset()
     __set_text(var, msg)
+    __configure_and_set_stats_text(stats)
 
 
-def __set_relay_duration(var, msg, seconds):
+def __set_relay_duration(var, msg, seconds, stats):
     """
         Sets the value of relation to the provided number of seconds
 
@@ -123,12 +128,13 @@ def __set_relay_duration(var, msg, seconds):
     :param seconds: New duration to be set
     :return: None
     """
-    current_duration = interface.get_relay_duration()
+    current_duration = int(interface.get_relay_duration())
     interface.set_relay_duration(current_duration + seconds)
     __set_text(var, msg)
+    __configure_and_set_stats_text(stats)
 
 
-def __skip_goal(var, msg):
+def __skip_goal(var, msg, stats):
     """
         Sets relay duration to 0, and increases the goal by 1
 
@@ -139,6 +145,19 @@ def __skip_goal(var, msg):
     interface.set_relay_duration(0)
     interface.set_goal(interface.get_goal() + 1)
     __set_text(var, msg)
+    __configure_and_set_stats_text(stats)
+
+
+def __get_stats():
+    return interface.all_attr()
+
+
+def __configure_and_set_stats_text(text_var):
+    current_stats = __get_stats()
+    goal = current_stats["goal"]
+    relay_duration = current_stats["relay_duration"]
+    stats_str = f"Goal: {goal}\tRelay Duration: {relay_duration}s"
+    __set_text(text_var, stats_str)
 
 
 if __name__ == "__main__":
@@ -164,16 +183,23 @@ if __name__ == "__main__":
     sensor_toggle_text = tk.StringVar()
     sensor_toggle_text.set("On")
 
+    # Set up the display of of the stats display
+    stats_text = tk.StringVar()
+    __configure_and_set_stats_text(stats_text)
+
     # Create main containers
     logo_frame_top = tk.Frame(root, bg=BB_BLUE, width=800, height=60, pady=5)
+    stats_frame = tk.Frame(root, bg=BB_BLUE, width=800, height=10, pady=5)
     button_frame = tk.Frame(root, bg=BB_BLUE, width=800, height=400, padx=5, pady=5)
 
     # Set layout of main containers
+    root.grid_rowconfigure(2, weight=1)
     root.grid_rowconfigure(1, weight=1)
     root.grid_columnconfigure(0, weight=1)
 
     logo_frame_top.grid(row=0)
-    button_frame.grid(row=1)
+    stats_frame.grid(row=1)
+    button_frame.grid(row=2)
 
     # Widgets for the Logo Frame
     logo_canvas = tk.Canvas(logo_frame_top, bg=BB_BLUE, width=logo_canvas_width, height=logo_canvas_height, bd = 0,
@@ -188,6 +214,14 @@ if __name__ == "__main__":
     logo_canvas.grid_columnconfigure(0, weight=1)
     message_label.grid()
     logo_canvas.grid_rowconfigure(1, weight=1)
+
+    # Set up the labels for the stats bar
+    stats_label = tk.Label(stats_frame, textvariable=stats_text, bg=BB_BLUE, fg="white", font="Times 12")
+
+    # Set layout of the widgets for stats frame
+    stats_label.grid(sticky="W")
+    stats_frame.grid_rowconfigure(0, weight=1)
+    stats_frame.grid_columnconfigure(0, weight=1)
 
     # Create Frames for button widgets
     btn_col_0_frame = tk.Frame(button_frame, bg=BB_BLUE, width=140, height=350, padx=10)
@@ -206,21 +240,27 @@ if __name__ == "__main__":
     # Create the buttons and the column labels
     col0_label = tk.Label(btn_col_0_frame, text="Increase Goal", font="Times 14", bg=BB_BLUE, fg=BB_GOLD)
     goal_inc_1_btn = tk.Button(btn_col_0_frame, text="+1", width=8, height=4, bg="gray", fg="black", padx=10, pady=10,
-                               command=partial(__set_message_and_goal, message, "Trigger value increased.", 1))
+                               command=partial(__set_message_and_goal, message, "Trigger value increased.", 1,
+                                                  stats_text))
     goal_inc_10_btn = tk.Button(btn_col_0_frame, text="+10", width=8, height=4, bg="gray", fg="black", padx=10, pady=10,
-                                command=partial(__set_message_and_goal, message, "Trigger value increased.", 10))
+                                command=partial(__set_message_and_goal, message, "Trigger value increased.", 10,
+                                                  stats_text))
 
     col1_label = tk.Label(btn_col_1_frame, text="Decrease Goal", font="Times 14", bg=BB_BLUE, fg=BB_GOLD)
     goal_dec_1_btn = tk.Button(btn_col_1_frame, text="-1", width=8, height=4, bg="gray", fg="black", padx=10, pady=10,
-                               command=partial(__set_message_and_goal, message, "Trigger value decreased.", -1))
+                               command=partial(__set_message_and_goal, message, "Trigger value decreased.", -1,
+                                                  stats_text))
     goal_dec_10_btn = tk.Button(btn_col_1_frame, text="-10", width=8, height=4, bg="gray", fg="black", padx=10, pady=10,
-                                command=partial(__set_message_and_goal, message, "Trigger value decreased.", -10))
+                                command=partial(__set_message_and_goal, message, "Trigger value decreased.", -10,
+                                                  stats_text))
 
     col2_label = tk.Label(btn_col_2_frame, text="Goal Reset/Skip", font="Times 14", bg=BB_BLUE, fg=BB_GOLD)
     goal_reset_btn = tk.Button(btn_col_2_frame, text="Reset", width=8, height=4, bg="gray", fg="black", padx=10,
-                               pady=10, command=partial(__toggle_reset_and_message, message, "Trigger value reset."))
+                               pady=10, command=partial(__toggle_reset_and_message, message, "Trigger value reset.",
+                                                  stats_text))
     goal_skip_btn = tk.Button(btn_col_2_frame, text="Skip", width=8, height=4, bg="gray", fg="black", padx=10,
-                              pady=10, command=partial(__skip_goal, message, "Trigger skipped"))
+                              pady=10, command=partial(__skip_goal, message, "Trigger skipped",
+                                                       stats_text))
 
     col3_label = tk.Label(btn_col_3_frame, text="Manage Relay", font="Times 14", bg=BB_BLUE, fg=BB_GOLD)
     relay_toggle_btn = tk.Button(btn_col_3_frame, textvariable=relay_toggle_text, width=8, height=4, bg="gray",
@@ -228,10 +268,12 @@ if __name__ == "__main__":
                                  command=partial(__toggle_relay, relay_toggle_text, message))
     relay_inc_dur_btn = tk.Button(btn_col_3_frame, text="Longer", width=8, height=4, bg="gray",
                                   fg="black", padx=10, pady=10,
-                                  command=partial(__set_relay_duration, message, "Relay Duration Increased.", 5))
+                                  command=partial(__set_relay_duration, message, "Relay Duration Increased.", 5,
+                                                  stats_text))
     relay_dec_dur_btn = tk.Button(btn_col_3_frame, text="Shorter", width=8, height=4, bg="gray",
                                   fg="black", padx=10, pady=10,
-                                  command=partial(__set_relay_duration, message, "Relay Duration Decreased.", -5))
+                                  command=partial(__set_relay_duration, message, "Relay Duration Decreased.", -5,
+                                                  stats_text))
 
     col4_label = tk.Label(btn_col_4_frame, text="Sensors On/Off", font="Times 14", bg=BB_BLUE, fg=BB_GOLD)
     sensor_toggle_btn = tk.Button(btn_col_4_frame, textvariable=sensor_toggle_text, width=8, height=4, bg="gray",
