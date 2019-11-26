@@ -122,6 +122,7 @@ def run_sensors():
             # check if the sensor is set to be on or off
             if interface.get_sensor_state() == 1:
                 current_time = datetime.now()
+                log.write(f"Relay State: {interface.get_relay_state()}\n")
                 if interface.get_relay_state() == 1:
                     log.write(f"Diff: {(current_time - start_time).total_seconds()}\tSetting: {interface.get_relay_duration()}\n")
                     if (current_time - start_time).total_seconds() >= interface.get_relay_duration():
