@@ -28,4 +28,3 @@ if __name__ == "__main__":
     run_leds()
     time.sleep(5)
     stop_leds()
-
