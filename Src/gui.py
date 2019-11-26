@@ -183,9 +183,9 @@ if __name__ == "__main__":
     # Set up text variables that require root existing first
     message = tk.StringVar()
     relay_toggle_text = tk.StringVar()
-    relay_toggle_text.set("Off")
+    relay_toggle_text.set("On")
     sensor_toggle_text = tk.StringVar()
-    sensor_toggle_text.set("On")
+    sensor_toggle_text.set("Off")
 
     # Set up the display of of the stats display
     stats_text = tk.StringVar()

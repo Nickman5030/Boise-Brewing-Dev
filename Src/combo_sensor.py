@@ -2,6 +2,7 @@ import RPi.GPIO as GPIO
 import time
 from datetime import datetime
 import interface
+import os
 
 # GPIO Mode (BOARD / BCM)
 GPIO.setmode(GPIO.BCM)
@@ -97,22 +98,27 @@ def run_sensors():
     the PIR sensor has triggered.
     :return:
     """
+    # Set up log file
+    log = open("log.txt", "w+")
     try:
         time.sleep(2)  # to stabilize sensor
         count = 0
         total_count = 0
         start_time = datetime.now()
         while True:
+            # get the value that will trigger a prize
+            target_val = interface.get_goal()
+
             # check if the sensor is set to be on or off
             if interface.get_sensor_state() == 1:
                 current_time = datetime.now()
                 if interface.get_relay_state() == 1:
-                    if (current_time - start_time).total_seconds() >= 10:
+                    log.write(f"Diff: {(current_time - start_time).total_seconds()}\tSetting: {interface.get_relay_duration()}\n")
+                    if (current_time - start_time).total_seconds() >= interface.get_relay_duration():
                         interface.toggle_relay_state()
                         stop_leds()
                         start_time = datetime.now()
-                # get the value that will trigger a prize
-                target_val = interface.get_goal()
+
                 if interface.get_reset() == 1:
                     # resets progress to goal
                     count = 0
@@ -120,7 +126,8 @@ def run_sensors():
                     interface.toggle_reset()
                 # Read from the PIR sensor
                 if GPIO.input(25):
-                    print("Motion Detected...")
+                    log.write("Motion Detected...\n")
+                    # print("Motion Detected...")
                     distance_array = []
                     # TODO: number of polls may need adjustment
                     for i in range(0, 30):
@@ -133,33 +140,41 @@ def run_sensors():
                         time.sleep(.1)
                     initial = find_average(distance_array, reverse=True)
                     final = find_average(distance_array)
-                    print("Initial: ", initial)
-                    print("Final: ", final)
+                    log.write(f"Initial: {initial}\n")
+                    log.write(f"Final: {final}\n")
+                    # print("Initial: ", initial)
+                    # print("Final: ", final)
 
                     # TODO: add possible padding value to account for standing in doorway
                     if (initial - final) > 0:
-                        print("customer enters")
+                        log.write("Customer enters.\n")
+                        # print("customer enters")
                         count = count + 1
                         total_count = total_count + 1
                         if count == target_val:
-                            print("Target Achieved!")
+                            log.write('Target Achieved!\n')
+                            # print("Target Achieved!")
                             interface.toggle_relay_state()
-                            relay_state = interface.get_relay_state()
-                            if relay_state == 1:
-                                start_time = datetime.now()
-                                run_leds()
+
+                            start_time = datetime.now()
+                            run_leds()
                             count = 0
                     # Accounts for the occasional empty array, no valid values from ultrasonic
                     elif (initial - final) == 0:
                         continue
                     else:
-                        print("customer exits")
+                        log.write("Customer exits\n")
+                        # print("customer exits")
 
-                    print("progress to target {0}/{1}".format(count, target_val))
-                    print("total customers {0}".format(total_count))
+                    log.write(f"progress to target {count}/{target_val}\n")
+                    log.write(f"total customers {total_count}\n")
+                    # print("progress to target {0}/{1}".format(count, target_val))
+                    # print("total customers {0}".format(total_count))
 
                     time.sleep(3)  # to avoid multiple detection
                 time.sleep(0.1)  # loop delay, should be less than detection delay
+                log.flush()
+                os.fsync(log.fileno())
 
     except:
         GPIO.cleanup()

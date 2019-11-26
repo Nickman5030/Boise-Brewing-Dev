@@ -43,7 +43,7 @@ def all_attr():
     """
     data = __load_sensor_data()
 
-    return data.__dict__
+    return data.all()
 
 
 def get_goal():
@@ -51,7 +51,7 @@ def get_goal():
     :return: Current value of goal
     """
     data = __load_sensor_data()
-    return data.goal
+    return data.get_goal()
 
 
 def set_goal(val):
@@ -62,7 +62,7 @@ def set_goal(val):
     :return: None
     """
     data = __load_sensor_data()
-    data.goal = val
+    data.set_goal(val)
     __write_sensor_data(data)
 
 
@@ -71,7 +71,7 @@ def get_sensor_state():
     :return: Current state of sensors (On/Off)
     """
     data = __load_sensor_data()
-    return data.sensor_state
+    return data.get_sensor_state()
 
 
 def toggle_sensor_state():
@@ -84,7 +84,7 @@ def toggle_sensor_state():
     :return: None
     """
     data = __load_sensor_data()
-    data.sensor_state = int(not data.sensor_state)
+    data.toggle_sensor_state()
     __write_sensor_data(data)
 
 
@@ -93,7 +93,7 @@ def get_relay_state():
     :return: Current state of relay
     """
     data = __load_sensor_data()
-    return data.relay_state
+    return data.get_relay_state()
 
 
 def toggle_relay_state():
@@ -106,7 +106,7 @@ def toggle_relay_state():
     :return: None
     """
     data = __load_sensor_data()
-    data.relay_state = int(not data.relay_state)
+    data.toggle_relay_state()
     __write_sensor_data(data)
 
 
@@ -115,7 +115,7 @@ def get_reset():
     :return: Current value of the reset attribute
     """
     data = __load_sensor_data()
-    return data.reset
+    return data.get_reset()
 
 
 def toggle_reset():
@@ -128,7 +128,7 @@ def toggle_reset():
     :return: None
     """
     data = __load_sensor_data()
-    data.reset = int(not data.reset)
+    data.toggle_reset()
     __write_sensor_data(data)
 
 
@@ -137,7 +137,7 @@ def get_relay_duration():
     :return: Current value of the relay duration setting
     """
     data = __load_sensor_data()
-    return data.relay_duration
+    return data.get_relay_duration()
 
 
 def set_relay_duration(seconds):
@@ -148,5 +148,5 @@ def set_relay_duration(seconds):
     :return: None
     """
     data = __load_sensor_data()
-    data.relay_duration = seconds
+    data.set_relay_duration(seconds)
     __write_sensor_data(data)
