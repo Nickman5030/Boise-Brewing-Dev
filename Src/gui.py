@@ -173,6 +173,7 @@ if __name__ == "__main__":
     root.title(APPLICATION_TITLE)
     root.geometry("{}x{}".format(WINDOW_WIDTH, WINDOW_HEIGHT))
     root.configure(background=BB_BLUE)
+    root.overrideredirect(True)
 
     # Set up the program icon and other images
     logo_small = tk.PhotoImage(file=os.path.join("images", "boise-brewing-small-logo.png"))
@@ -193,7 +194,7 @@ if __name__ == "__main__":
     # Create main containers
     logo_frame_top = tk.Frame(root, bg=BB_BLUE, width=800, height=60, pady=5)
     stats_frame = tk.Frame(root, bg=BB_BLUE, width=800, height=10, pady=5)
-    button_frame = tk.Frame(root, bg=BB_BLUE, width=800, height=400, padx=5, pady=5)
+    button_frame = tk.Frame(root, bg=BB_BLUE, width=800, height=380, padx=5, pady=5)
 
     # Set layout of main containers
     root.grid_rowconfigure(2, weight=1)
@@ -282,6 +283,8 @@ if __name__ == "__main__":
     sensor_toggle_btn = tk.Button(btn_col_4_frame, textvariable=sensor_toggle_text, width=8, height=4, bg="gray",
                                   fg="black", padx=10, pady=10,
                                   command=partial(__toggle_sensor, sensor_toggle_text, message))
+    gui_close_btn = tk.Button(btn_col_4_frame, text="Close", width=8, height=4, bg="gray", fg="red", padx=10, pady=10,
+                              command=root.destroy)
 
     # Layout for buttons and labels
     col0_label.grid(row=1)
@@ -303,5 +306,6 @@ if __name__ == "__main__":
 
     col4_label.grid(row=1)
     sensor_toggle_btn.grid(row=2)
+    gui_close_btn.grid(row=3)
 
     root.mainloop()
