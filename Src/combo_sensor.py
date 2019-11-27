@@ -19,9 +19,9 @@ GPIO_GREEN = 22
 GPIO.setup(GPIO_TRIGGER, GPIO.OUT)
 GPIO.setup(GPIO_ECHO, GPIO.IN)
 GPIO.setup(GPIO_PIR, GPIO.IN)  # PIR
-# GPIO.setup(GPIO_BLUE, GPIO.OUT)
+GPIO.setup(GPIO_BLUE, GPIO.OUT)
 GPIO.setup(GPIO_GREEN, GPIO.OUT)
-# GPIO.setup(GPIO_RED, GPIO.OUT)
+GPIO.setup(GPIO_RED, GPIO.OUT)
 
 # Ceiling on distance from US sensor
 # Distances greater than this will be thrown out to account for door being open
@@ -91,8 +91,7 @@ def run_leds():
     turns on all three Leds
     :return:
     """
-    # GPIO.output((GPIO_BLUE, GPIO_GREEN, GPIO_RED), GPIO.HIGH)
-    GPIO.output(GPIO_GREEN, GPIO.HIGH)
+    GPIO.output((GPIO_BLUE, GPIO_GREEN, GPIO_RED), GPIO.HIGH)
 
 
 def stop_leds():
@@ -100,8 +99,7 @@ def stop_leds():
     turns off all three leds
     :return:
     """
-    # GPIO.output((GPIO_BLUE, GPIO_GREEN, GPIO_RED), GPIO.LOW)
-    GPIO.output(GPIO_GREEN, GPIO.LOW)
+    GPIO.output((GPIO_BLUE, GPIO_GREEN, GPIO_RED), GPIO.LOW)
 
 
 def run_sensors():
