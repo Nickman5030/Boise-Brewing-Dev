@@ -187,7 +187,8 @@ def run_sensors():
                 log.flush()
                 os.fsync(log.fileno())
 
-    except:
+    except Exception as e:
+        log.write(f"Esception has occurred: \n\t\t{e.__repr__()}\n")
         GPIO.cleanup()
 
 
