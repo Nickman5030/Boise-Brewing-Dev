@@ -184,11 +184,13 @@ def run_sensors():
 
                     time.sleep(3)  # to avoid multiple detection
                 time.sleep(0.1)  # loop delay, should be less than detection delay
-                log.flush()
-                os.fsync(log.fileno())
+                try:
+                    log.flush()
+                    os.fsync(log.fileno())
+                except EOFError:
+                    continue
 
-    except Exception as e:
-        log.write(f"Exception {e.__repr__()} has occurred.\n{e.__traceback__()}\n")
+    except:
         GPIO.cleanup()
 
 
