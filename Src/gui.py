@@ -167,9 +167,9 @@ def __configure_and_set_stats_text(text_var):
 
 
 def __shutdown(root):
+    GPIO.cleanup()
     # send interrupt to the Sensors
     os.kill(int(check_output(["pgrep", "-f", "combo_sensor.py"])), SIGKILL)
-    GPIO.cleanup()
 
     # close the GUI
     root.destroy()
