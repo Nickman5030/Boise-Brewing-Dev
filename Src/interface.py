@@ -21,8 +21,8 @@ def __load_sensor_data():
     :return: Returns a usable, loaded instance of SensorData
     """
     while True:
+        data_file = open(__DATA_FILE, "rb")
         try:
-            data_file = open(__DATA_FILE, "rb")
             fcntl.flock(data_file, fcntl.LOCK_EX | fcntl.LOCK_NB)
             loaded_data = pickle.load(data_file)
             data_file.close()
@@ -31,6 +31,7 @@ def __load_sensor_data():
         except FileNotFoundError:
             return __SensorData()
         except OSError:
+            data_file.close()
             # This happens if lock is unavailable, so just go to next iteration until the function returns
             continue
 
@@ -43,13 +44,15 @@ def __write_sensor_data(cls):
     :return: None
     """
     while True:
+        data_file = open(__DATA_FILE, "wb")
         try:
-            data_file = open(__DATA_FILE, "wb")
+
             fcntl.flock(data_file, fcntl.LOCK_EX | fcntl.LOCK_NB)
             pickle.dump(cls, data_file)
             data_file.close()
             break
         except OSError:
+            data_file.close()
             # This happens if lock is unavailable, so just go to next iteration until the function returns
             continue
 
