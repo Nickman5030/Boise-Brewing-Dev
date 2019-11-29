@@ -199,4 +199,7 @@ def run_sensors():
 
 
 if __name__ == "__main__":
-    run_sensors()
+    try:
+        run_sensors()
+    except KeyboardInterrupt:
+        GPIO.cleanup()
