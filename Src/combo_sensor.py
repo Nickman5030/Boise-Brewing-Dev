@@ -118,7 +118,7 @@ def run_sensors():
 
             # Check if we are supposed to exit
             if interface.get_shutdown_state() == 1:
-                return
+                raise KeyboardInterrupt
 
             # check if the sensor is set to be on or off
             if interface.get_sensor_state() == 1:
@@ -171,5 +171,7 @@ def run_sensors():
 
 
 if __name__ == "__main__":
-    run_sensors()
-    GPIO.cleanup()
+    try:
+        run_sensors()
+    except KeyboardInterrupt:
+        GPIO.cleanup()
