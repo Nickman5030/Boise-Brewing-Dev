@@ -109,8 +109,6 @@ def run_sensors():
     the PIR sensor has triggered.
     :return:
     """
-    # Set up log file
-    # log = open("log.txt", "w+")
     try:
         time.sleep(2)  # to stabilize sensor
         count = 0
@@ -123,9 +121,7 @@ def run_sensors():
             # check if the sensor is set to be on or off
             if interface.get_sensor_state() == 1:
                 current_time = datetime.now()
-                # log.write(f"Relay State: {interface.get_relay_state()}\n")
                 if interface.get_relay_state() == 1:
-                    # log.write(f"Diff: {(current_time - start_time).total_seconds()}\tSetting: {interface.get_relay_duration()}\n")
                     if (current_time - start_time).total_seconds() >= interface.get_relay_duration():
                         interface.toggle_relay_state()
                         stop_leds()
@@ -138,8 +134,6 @@ def run_sensors():
                     interface.toggle_reset()
                 # Read from the PIR sensor
                 if GPIO.input(25):
-                    # log.write("Motion Detected...\n")
-                    # print("Motion Detected...")
                     distance_array = []
                     # TODO: number of polls may need adjustment
                     for i in range(0, 30):
@@ -152,20 +146,12 @@ def run_sensors():
                         time.sleep(.1)
                     initial = find_average(distance_array, reverse=True)
                     final = find_average(distance_array)
-                    # log.write(f"Initial: {initial}\n")
-                    # log.write(f"Final: {final}\n")
-                    # print("Initial: ", initial)
-                    # print("Final: ", final)
 
                     # TODO: add possible padding value to account for standing in doorway
                     if (initial - final) > 0:
-                        # log.write("Customer enters.\n")
-                        # print("customer enters")
                         count = count + 1
                         total_count = total_count + 1
                         if count == target_val:
-                            # log.write('Target Achieved!\n')
-                            # print("Target Achieved!")
                             interface.toggle_relay_state()
 
                             start_time = datetime.now()
@@ -174,27 +160,11 @@ def run_sensors():
                     # Accounts for the occasional empty array, no valid values from ultrasonic
                     elif (initial - final) == 0:
                         continue
-                    # else:
-                    #     # log.write("Customer exits\n")
-                        # print("customer exits")
-
-                    # log.write(f"progress to target {count}/{target_val}\n")
-                    # log.write(f"total customers {total_count}\n")
-                    # print("progress to target {0}/{1}".format(count, target_val))
-                    # print("total customers {0}".format(total_count))
 
                     time.sleep(3)  # to avoid multiple detection
                 time.sleep(0.1)  # loop delay, should be less than detection delay
-                # try:
-                #     log.flush()
-                #     os.fsync(log.fileno())
-                # except EOFError:
-                #     continue
 
     except:
-        with open("error-dead.txt", "r") as error_file:
-            error_file.write(f"Error: {e.__repr__()}\tStack: {traceback.print_exc()}\n")
-    finally:
         GPIO.cleanup()
 
 

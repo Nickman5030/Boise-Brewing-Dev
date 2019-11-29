@@ -7,7 +7,7 @@ import interface
 import os
 import tkinter as tk
 from subprocess import check_output
-from signal import SIGINT
+from signal import SIGKILL
 from functools import partial
 
 
@@ -170,7 +170,9 @@ def __shutdown(root):
     root.destroy()
 
     # send interrupt to the Sensors
-    os.kill(int(check_output(["pgrep", "-f", "combo_sensor.py"])), SIGINT)
+    with open(os.path.join(os.getcwd(), "data", "log.txt")) as log_file:
+        log_file.write(f"{int(check_output(['pgrep', ''-f'', 'combo_sensor.py']))}")
+    os.kill(int(check_output(["pgrep", "-f", "combo_sensor.py"])), SIGKILL)
 
 
 if __name__ == "__main__":
