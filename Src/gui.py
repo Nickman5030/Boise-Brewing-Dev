@@ -3,7 +3,7 @@
 
 :author: Garrett Allen
 """
-import RPi.GPIO as GPIO
+from combo_sensor import GPIO
 import interface
 import os
 import tkinter as tk
