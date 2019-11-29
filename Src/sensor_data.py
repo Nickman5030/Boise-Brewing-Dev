@@ -13,6 +13,7 @@ class SensorData(object):
         self.sensor_state = 1 # 1 = On, 0 = Off
         self.reset = 0  # 1 = Trigger Reset, 0 = No reset
         self.relay_duration = 10  # seconds
+        self.shutdown = 0  # 0 means leave on, 1 means turn off
 
     def all(self):
         """
@@ -96,3 +97,20 @@ class SensorData(object):
         :return: None
         """
         self.relay_duration = seconds
+
+    def toggle_shutdown(self):
+        """
+            toggles shutdown flag
+
+        :return: None
+        """
+
+        self.shutdown = int(not self.shutdown)
+
+    def get_shutdown_state(self):
+        """
+            Getter for shutdown attribute
+
+        :return: Returns the current value of shutdown attribute
+        """
+        return self.shutdown

@@ -174,3 +174,22 @@ def set_relay_duration(seconds):
     data = __load_sensor_data()
     data.set_relay_duration(seconds)
     __write_sensor_data(data)
+
+def shutdown():
+    """
+        Tells the combo_sensors to raise a KeyboardInterrupt, cleanup and die
+
+    :return: None
+    """
+    data = __load_sensor_data()
+    data.toggle_shutdown()
+    __write_sensor_data(data)
+
+def get_shutdown_state():
+    """
+        Returns current state of shutdown flag
+
+    :return: value stored in shutdown flag
+    """
+    data = __load_sensor_data()
+    return data.get_shutdown_state()

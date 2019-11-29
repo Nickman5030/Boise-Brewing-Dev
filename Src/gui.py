@@ -3,12 +3,9 @@
 
 :author: Garrett Allen
 """
-from combo_sensor import GPIO
 import interface
 import os
 import tkinter as tk
-from subprocess import check_output
-from signal import SIGKILL
 from functools import partial
 
 
@@ -167,9 +164,7 @@ def __configure_and_set_stats_text(text_var):
 
 
 def __shutdown(root):
-    GPIO.cleanup()
-    # send interrupt to the Sensors
-    os.kill(int(check_output(["pgrep", "-f", "combo_sensor.py"])), SIGKILL)
+    interface.shutdown()
 
     # close the GUI
     root.destroy()

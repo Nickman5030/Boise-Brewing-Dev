@@ -2,8 +2,6 @@ import RPi.GPIO as GPIO
 import time
 from datetime import datetime
 import interface
-import os
-import traceback
 
 # GPIO Mode (BOARD / BCM)
 GPIO.setmode(GPIO.BCM)
@@ -118,6 +116,10 @@ def run_sensors():
             # get the value that will trigger a prize
             target_val = interface.get_goal()
 
+            # Check if we are supposed to exit
+            if interface.get_shutdown_state() == 1:
+                return
+
             # check if the sensor is set to be on or off
             if interface.get_sensor_state() == 1:
                 current_time = datetime.now()
@@ -169,7 +171,5 @@ def run_sensors():
 
 
 if __name__ == "__main__":
-    try:
-        run_sensors()
-    except KeyboardInterrupt:
-        GPIO.cleanup()
+    run_sensors()
+    GPIO.cleanup()
