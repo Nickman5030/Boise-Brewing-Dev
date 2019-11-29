@@ -183,7 +183,7 @@ if __name__ == "__main__":
     # Set up text variables that require root existing first
     message = tk.StringVar()
     relay_toggle_text = tk.StringVar()
-    relay_toggle_text.set("On")
+    relay_toggle_text.set("Off")
     sensor_toggle_text = tk.StringVar()
     sensor_toggle_text.set("Off")
 
