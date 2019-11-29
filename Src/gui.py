@@ -6,6 +6,8 @@
 import interface
 import os
 import tkinter as tk
+from subprocess import check_output
+from signal import SIGINT
 from functools import partial
 
 
@@ -163,6 +165,14 @@ def __configure_and_set_stats_text(text_var):
     __set_text(text_var, stats_str)
 
 
+def __shutdown(root):
+    # close the GUI
+    root.destroy()
+
+    # send interrupt to the Sensors
+    os.kill(int(check_output(["pgrep", "-f", "combo_sensor.py"])), SIGINT)
+
+
 if __name__ == "__main__":
     # Data variables for use by GUI
     logo_canvas_width = 175
@@ -284,7 +294,7 @@ if __name__ == "__main__":
                                   fg="black", padx=10, pady=10,
                                   command=partial(__toggle_sensor, sensor_toggle_text, message))
     gui_close_btn = tk.Button(btn_col_4_frame, text="Close", width=8, height=4, bg="gray", fg="red", padx=10, pady=10,
-                              command=root.destroy)
+                              command=partial(__shutdown, root))
 
     # Layout for buttons and labels
     col0_label.grid(row=1)
