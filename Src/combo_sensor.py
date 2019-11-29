@@ -3,6 +3,7 @@ import time
 from datetime import datetime
 import interface
 import os
+import traceback
 
 # GPIO Mode (BOARD / BCM)
 GPIO.setmode(GPIO.BCM)
@@ -190,7 +191,10 @@ def run_sensors():
                 except EOFError:
                     continue
 
-    except:
+    except Exception as e:
+        with open("error-dead.txt", "r") as error_file:
+            error_file.write(f"Error: {e.__repr__()}\tStack: {traceback.print_exc()}\n")
+    finally:
         GPIO.cleanup()
 
 
