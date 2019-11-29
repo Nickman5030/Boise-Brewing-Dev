@@ -166,13 +166,13 @@ def __configure_and_set_stats_text(text_var):
 
 
 def __shutdown(root):
-    # close the GUI
-    root.destroy()
-
     # send interrupt to the Sensors
     with open(os.path.join(os.getcwd(), "data", "log.txt")) as log_file:
         log_file.write(f"{int(check_output(['pgrep', ''-f'', 'combo_sensor.py']))}")
     os.kill(int(check_output(["pgrep", "-f", "combo_sensor.py"])), SIGKILL)
+
+    # close the GUI
+    root.destroy()
 
 
 if __name__ == "__main__":
