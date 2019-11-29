@@ -6,6 +6,7 @@
 """
 
 import os
+import fcntl
 import pickle
 from sensor_data import SensorData as __SensorData
 
@@ -19,11 +20,19 @@ def __load_sensor_data():
 
     :return: Returns a usable, loaded instance of SensorData
     """
-    try:
-        with open(__DATA_FILE, "rb") as data_file:
-            return pickle.load(data_file)
-    except FileNotFoundError:
-        return __SensorData()
+    while True:
+        try:
+            data_file = open(__DATA_FILE, "rb")
+            fcntl.flock(data_file, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            loaded_data = pickle.load(data_file)
+            data_file.close()
+            return loaded_data
+
+        except FileNotFoundError:
+            return __SensorData()
+        except OSError:
+            # This happens if lock is unavailable, so just go to next iteration until the function returns
+            continue
 
 
 def __write_sensor_data(cls):
@@ -33,8 +42,20 @@ def __write_sensor_data(cls):
     :param cls: Instance of SensorData to be written to disk
     :return: None
     """
-    with open(__DATA_FILE, "wb") as data_file:
-        pickle.dump(cls, data_file)
+    while True:
+        try:
+            data_file = open(__DATA_FILE, "wb")
+            fcntl.flock(data_file, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            pickle.dump(cls, data_file)
+            data_file.close()
+            break
+        except OSError:
+            # This happens if lock is unavailable, so just go to next iteration until the function returns
+            continue
+
+    # with open(__DATA_FILE, "wb") as data_file:
+    #     pickle.dump(cls, data_file)
+
 
 
 def all_attr():
