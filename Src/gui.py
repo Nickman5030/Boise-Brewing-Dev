@@ -3,11 +3,12 @@
 
 :author: Garrett Allen
 """
+import RPi.GPIO as GPIO
 import interface
 import os
 import tkinter as tk
 from subprocess import check_output
-from signal import SIGKILL
+from signal import SIGINT
 from functools import partial
 
 
@@ -167,9 +168,8 @@ def __configure_and_set_stats_text(text_var):
 
 def __shutdown(root):
     # send interrupt to the Sensors
-    with open(os.path.join(os.getcwd(), "data", "log.txt")) as log_file:
-        log_file.write(f"{int(check_output(['pgrep', '-f', 'combo_sensor.py']))}")
-    os.kill(int(check_output(["pgrep", "-f", "combo_sensor.py"])), SIGKILL)
+    os.kill(int(check_output(["pgrep", "-f", "combo_sensor.py"])), SIGINT)
+    GPIO.cleanup()
 
     # close the GUI
     root.destroy()
