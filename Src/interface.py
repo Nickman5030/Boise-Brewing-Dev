@@ -21,15 +21,17 @@ def __load_sensor_data():
     :return: Returns a usable, loaded instance of SensorData
     """
     while True:
-        data_file = open(__DATA_FILE, "rb")
+        try:
+            data_file = open(__DATA_FILE, "rb")
+        except FileNotFoundError:
+            return __SensorData()
+
         try:
             fcntl.flock(data_file, fcntl.LOCK_EX | fcntl.LOCK_NB)
             loaded_data = pickle.load(data_file)
             data_file.close()
             return loaded_data
 
-        except FileNotFoundError:
-            return __SensorData()
         except OSError:
             data_file.close()
             # This happens if lock is unavailable, so just go to next iteration until the function returns
