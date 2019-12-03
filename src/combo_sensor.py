@@ -147,8 +147,8 @@ def run_sensors():
                         # TODO: polling frequency may need adjustment
                         time.sleep(.1)
                     sorted_distance_array = sorted(distance_array)
-                    initial = find_average(sorted_distance_array[10:], reverse=True)
-                    final = find_average(sorted_distance_array[:-10])
+                    initial = find_average(sorted_distance_array[5:], reverse=True)
+                    final = find_average(sorted_distance_array[:-5])
 
                     # TODO: add possible padding value to account for standing in doorway
                     if (initial - final) > 0:
