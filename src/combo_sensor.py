@@ -117,7 +117,7 @@ def run_sensors():
             target_val = interface.get_goal()
 
             # Check if we are supposed to exit
-            if interface.get_shutdown_state() == 1:
+            if interface.get_shutdown_state() == 0:
                 raise KeyboardInterrupt
 
             # check if the sensor is set to be on or off
