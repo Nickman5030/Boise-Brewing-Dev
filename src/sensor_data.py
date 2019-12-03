@@ -8,7 +8,7 @@
 
 class SensorData(object):
     def __init__(self):
-        self.goal = 5
+        self.goal = 80
         self.relay_state = 0  # 1 = On, 0 = Off
         self.sensor_state = 1 # 1 = On, 0 = Off
         self.reset = 0  # 1 = Trigger Reset, 0 = No reset
