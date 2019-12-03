@@ -138,7 +138,7 @@ def run_sensors():
                 if GPIO.input(25):
                     distance_array = []
                     # TODO: number of polls may need adjustment
-                    for i in range(0, 30):
+                    for i in range(0, 50):
                         dist = distance()
                         # only add values less than the max distance. Helps with inaccurate reads, or reads from
                         # areas we don't care about
@@ -146,8 +146,9 @@ def run_sensors():
                             distance_array.append(dist)
                         # TODO: polling frequency may need adjustment
                         time.sleep(.1)
-                    initial = find_average(distance_array, reverse=True)
-                    final = find_average(distance_array)
+                    sorted_distance_array = sorted(distance_array)
+                    initial = find_average(sorted_distance_array[10:], reverse=True)
+                    final = find_average(sorted_distance_array[:-10])
 
                     # TODO: add possible padding value to account for standing in doorway
                     if (initial - final) > 0:
