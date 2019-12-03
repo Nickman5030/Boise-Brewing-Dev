@@ -25,7 +25,7 @@ GPIO.setup(GPIO_RED, GPIO.OUT)
 # Ceiling on distance from US sensor
 # Distances greater than this will be thrown out to account for door being open
 # TODO: adjust based on distance from sensor to door/wall
-MAX_DISTANCE = 210
+MAX_DISTANCE = 250
 
 
 def distance():
