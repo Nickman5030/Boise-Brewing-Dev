@@ -2,6 +2,7 @@ import RPi.GPIO as GPIO
 import time
 from datetime import datetime
 import interface
+from math import ceil
 
 # GPIO Mode (BOARD / BCM)
 GPIO.setmode(GPIO.BCM)
@@ -26,6 +27,7 @@ GPIO.setup(GPIO_RED, GPIO.OUT)
 # Distances greater than this will be thrown out to account for door being open
 # TODO: adjust based on distance from sensor to door/wall
 MAX_DISTANCE = 250
+MIN_DISTANCE = 150
 
 
 def distance():
@@ -142,18 +144,23 @@ def run_sensors():
                         dist = distance()
                         # only add values less than the max distance. Helps with inaccurate reads, or reads from
                         # areas we don't care about
-                        if dist < MAX_DISTANCE:
+                        if MIN_DISTANCE < dist < MAX_DISTANCE:
                             distance_array.append(dist)
                         # TODO: polling frequency may need adjustment
                         time.sleep(.1)
                     sorted_distance_array = sorted(distance_array)
-                    initial = find_average(sorted_distance_array[7:], reverse=True)
-                    final = find_average(sorted_distance_array[:-7])
+
+                    # We are cutting 10% from the front and back of the array
+                    trim_val = ceil(len(sorted_distance_array) * 0.1)
+                    initial = find_average(sorted_distance_array[trim_val:], reverse=True)
+                    final = find_average(sorted_distance_array[:(trim_val * -1)])
 
                     # TODO: add possible padding value to account for standing in doorway
                     if (initial - final) > 0:
                         count = count + 1
                         total_count = total_count + 1
+                        print(f"{count}/{target_val}\tTotal: {total_count}")
+                        print(f"Initial: {initial}\tFinal: {final}")
                         if count == target_val:
                             interface.toggle_relay_state()
 
