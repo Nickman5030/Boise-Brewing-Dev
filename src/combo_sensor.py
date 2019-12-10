@@ -180,6 +180,9 @@ def run_sensors():
 
 if __name__ == "__main__":
     try:
+        # If it was shut off using the "Close" button, reset the toggle on restart
+        if interface.get_shutdown_state() == 1:
+            interface.toggle_shutdown()
         run_sensors()
     except KeyboardInterrupt:
         GPIO.cleanup()
