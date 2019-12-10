@@ -156,7 +156,7 @@ def run_sensors():
                     final = find_average(sorted_distance_array[:(trim_val * -1)])
 
                     # TODO: add possible padding value to account for standing in doorway
-                    if (initial - final) >= 50:
+                    if (initial - final) >= 25:
                         count = count + 1
                         total_count = total_count + 1
                         print(f"{count}/{target_val}\tTotal: {total_count}")
